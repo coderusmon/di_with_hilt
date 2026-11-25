@@ -217,3 +217,20 @@ SingletonComponent (Application)
 
 В `HiltLab` нет `AppContainer`, фабрик ViewModel, `ApiInstance` и `DatabaseProvider`: всё приходит через `@Inject constructor` и модули. Размер Hilt-версии: `:app` — 8 файлов/323 строки, `:data` — 15/508, `:feature-notes` — 4/305 (итого 27 файлов, 1136 строк main-кода), плюс 25 JVM- и 4 instrumented-теста. Сравнить с веткой `manual-di` нельзя: она не создавалась (см. вопрос 4).
 
+### Вопрос 22. `SavedStateHandle` и смерть процесса **[проверено]**
+
+`NoteDetailViewModel`:
+
+```kotlin
+@HiltViewModel
+class NoteDetailViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val repository: NoteRepository,
+    private val formatter: DateFormatter,
+) : ViewModel() {
+    private val noteId: Long = savedStateHandle.get<Long>("noteId") ?: 0L
+}
+```
+
+Маршрут `note/{noteId}` объявлен с `NavType.LongType`, Hilt сам кладёт аргументы в `SavedStateHandle`. На эмуляторе открыл заметку, свернул приложение, выполнил `adb shell am kill uz.ttpu.hiltlab`, снова запустил: процесс новый (`AppSession #1`), а экран «Заметка» восстановился с тем же `noteId` и текстом. JVM-тест `NoteDetailViewModelTest` передаёт `SavedStateHandle(mapOf("noteId" to 1L))` и проверяет загрузку/сохранение.
+
