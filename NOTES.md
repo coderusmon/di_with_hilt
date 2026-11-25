@@ -19,3 +19,9 @@
 
 ## Section 1 — DI Fundamentals & Manual DI
 
+### Вопрос 1. `HardCar` против `Car(engine)` **[проверено]**
+
+`HardCar` сам вызывает `PetrolEngine()` внутри, поэтому в тесте невозможно подменить сломанный двигатель: можно проверить только поведение настоящего `PetrolEngine`, а сценарий «двигатель сломан» требует менять код класса. `Car(engine: Engine)` принимает интерфейс, поэтому тест передаёт `FakeEngine`, который возвращает заранее заданный результат или бросает исключение, — поведение автомобиля проверяется без реального двигателя.
+
+В `data/src/test/.../ManualDiTest.kt` три теста: `hardCarBuildsItsOwnEngine`, `softCarAcceptsAnyEngine` (анонимный `FakeEngine`), `serviceLocatorHidesTheDependency`.
+
