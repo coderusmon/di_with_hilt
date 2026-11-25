@@ -158,3 +158,17 @@ fun provideDatabase(@ApplicationContext context: Context): AppDatabase
 
 ## Section 4 — Components & Scopes
 
+### Вопрос 16. Эксперимент со scope **[частично проверено]**
+
+Классы: `AppSession` (`@Singleton`), `ActivitySession` (`@ActivityRetainedScoped`), `ScreenState` (без scope), `ViewModelTracker` (`@ViewModelScoped`), каждый печатает номер создания. Реальные наблюдения на эмуляторе:
+
+| Событие | AppSession | ActivitySession | ScreenState | ViewModelTracker |
+|---|---|---|---|---|
+| Первый запуск | #1 | #1 | #1 | — |
+| Открытие Notes | #1 | #1 | #1 | #1 |
+| Поворот экрана | #1 | #1 | #2 | #1 |
+| Возврат на Home | #1 | #1 | #3 | #1 |
+| Смерть процесса и восстановление | новый #1 (новый процесс) | #1 | #1 | #1 |
+
+`AppSession` живёт весь процесс; `ActivitySession` переживает поворот, потому что Activity retained, а не пересоздаётся с нуля; `ScreenState` без scope создаётся заново при каждой композиции/инъекции; `ViewModelTracker` живёт вместе с ViewModel и переживает поворот. Второй Activity и отдельный ViewModel-экран в этом прогоне не создавались, поэтому две колонки таблицы из задания отмечены как неполные.
+
