@@ -260,3 +260,7 @@ class NoteDetailViewModel @Inject constructor(
 
 25 JVM-тестов в `:data` и `:feature-notes` не используют Hilt, Android и эмулятор: `ManualDiTest`, `FakeNoteRepositoryTest`, `RoomNoteRepositoryTest` (fake DAO + test dispatcher), `UserRepositoryTest` (MockWebServer), `NetworkQualifierTest`, `FileDownloader`-тесты, `NotesViewModelTest`, `NoteDetailViewModelTest`. Все классы тестируемы потому, что зависимости приходят через конструктор, а интерфейсы (`NoteRepository`, `UserRepository`, `NoteDao`) позволяют подставить fake. Время `./gradlew testDebugUnitTest` — около 6–13 секунд на прогретом Gradle.
 
+### Вопрос 28. Instrumented-настройка **[проверено]**
+
+В `:app`: `testInstrumentationRunner = "uz.ttpu.hiltlab.HiltTestRunner"`, `androidTestImplementation(libs.hilt.android.testing)`, `kspAndroidTest(libs.hilt.android.compiler)`. `HiltTestRunner` возвращает `HiltTestApplication`. Тесты `NoteRepositoryHiltTest` и `ScopeTest` используют `@HiltAndroidTest` и `HiltAndroidRule`. Все 4 instrumented-теста прошли на эмуляторе. Три намеренные поломки (без runner, без rule, без `inject()`) не воспроизводились; типичные симптомы — `HiltTestApplication` не установлен, `lateinit` не инициализирован, пустой тестовый компонент.
+
