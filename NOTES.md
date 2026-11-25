@@ -172,3 +172,18 @@ fun provideDatabase(@ApplicationContext context: Context): AppDatabase
 
 `AppSession` живёт весь процесс; `ActivitySession` переживает поворот, потому что Activity retained, а не пересоздаётся с нуля; `ScreenState` без scope создаётся заново при каждой композиции/инъекции; `ViewModelTracker` живёт вместе с ViewModel и переживает поворот. Второй Activity и отдельный ViewModel-экран в этом прогоне не создавались, поэтому две колонки таблицы из задания отмечены как неполные.
 
+### Вопрос 17. Иерархия компонентов
+
+```
+SingletonComponent (Application)
+└── ActivityRetainedComponent (переживает configuration change)
+    └── ActivityComponent (Activity)
+        └── FragmentComponent (Fragment)
+        └── ViewModelComponent (ViewModel, создаётся от Activity/Fragment)
+```
+
+* `@Singleton` не может зависеть от `@ActivityScoped`: родитель не видит детей, и singleton пережил бы Activity (утечка). **Нелегально.**
+* `@ActivityScoped` может зависеть от `@Singleton`: ребёнок видит всё, что даёт родитель. **Легально.**
+* `@ViewModelScoped` нельзя инжектить в Activity напрямую: компонент ViewModel — ребёнок, его scope не виден Activity. **Нелегально.**
+* Поворот переживают `SingletonComponent` и `ActivityRetainedComponent` (и ViewModel); `ActivityComponent` и `FragmentComponent` пересоздаются. Процессную смерть не переживает ничего, кроме сохранённого состояния (`SavedStateHandle`, `SavedStateRegistry`).
+
