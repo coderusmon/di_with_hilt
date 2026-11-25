@@ -78,3 +78,14 @@ UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ─�
 
 ## Section 2 — Setting Up Hilt
 
+### Вопрос 6. Gradle-настройка и две поломки **[настройка проверена, ошибки не воспроизводились]**
+
+В корневом `build.gradle.kts` плагин подключён с `apply false`, в модулях — `alias(libs.plugins.hilt)`, `ksp(libs.hilt.android.compiler)` и `implementation(libs.hilt.android)`; версия задана в `gradle/libs.versions.toml` (`hilt = "2.57.1"`). Компилятор — `com.google.dagger:hilt-android-compiler:2.57.1`, как в слайдах.
+
+Две типичные поломки:
+
+* **Плагин есть, компилятора нет.** Hilt-плагин включает байткод-трансформацию, но без `hilt-android-compiler` некому генерировать `Hilt_App`/`Hilt_MainActivity`; сборка падает на ссылках на сгенерированные классы и на агрегации Hilt (сообщение вида «The Hilt Android Gradle plugin is applied but the … compiler dependency is not detected»).
+* **Компилятор есть, плагина нет.** KSP генерирует код, но плагин не выполняет трансформацию `App extends Hilt_App`, поэтому приложение падает/не собирается с сообщением о том, что Hilt Gradle plugin не применён.
+
+Точный текст ошибок в `NOTES.md` не скопирован: намеренно ломать рабочий проект в этом прогоне не стал, чтобы не оставить репозиторий в нерабочем состоянии (это ограничение указано в начале).
+
