@@ -36,3 +36,21 @@
 | (e) `by viewModels()` с кастомной фабрикой | **supplied** | фабрика создаёт ViewModel и передаёт зависимости |
 | (f) `@Inject lateinit var logger: Logger` | **supplied** | Hilt подставляет поле после создания Android-объекта |
 
+### Вопрос 3. Ручной `AppContainer` и счётчики **[частично проверено]**
+
+Ручной контейнер в этом проекте не использовался: приложение сразу собрано на Hilt. Его эквивалент выглядел бы так:
+
+```kotlin
+class AppContainer(context: Context) {
+    val client = OkHttpClient.Builder().build().also { println("created OkHttp") }
+    val retrofit = Retrofit.Builder().baseUrl(BASE).client(client).build()
+        .also { println("created Retrofit") }
+    val db = Room.databaseBuilder(context, AppDatabase::class.java, "app.db").build()
+        .also { println("created DB") }
+    val repository = RoomNoteRepository(db.noteDao(), Dispatchers.IO)
+        .also { println("created Repository") }
+}
+```
+
+Ожидание: `OkHttpClient`, Retrofit, база и репозиторий создаются по одному разу на процесс; экраны получают их из контейнера, а не создают заново. В Hilt-версии это подтверждено логом: `AppSession #1` один раз, `AppDatabase` один раз (при первом открытии Notes), `ApiClient`/`Retrofit`/`GitHubApi` по одному разу (при первом открытии GitHub users). `DownloadClient` не создавался, потому что `FileDownloader` в UI не вызывается: Hilt ленив и не строит неиспользуемые singleton-зависимости.
+
