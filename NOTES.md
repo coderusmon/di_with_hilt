@@ -95,3 +95,9 @@ UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ─�
 
 Без строки в манифесте система создаёт обычный `Application`, и `@AndroidEntryPoint`-активность падает с `IllegalStateException`: Hilt Activity должен быть прикреплён к `@HiltAndroidApp`-приложению. Без аннотации Hilt не генерирует `Hilt_App`, поэтому сборка не находит сгенерированный базовый класс. **[не воспроизводилось]**
 
+### Вопрос 8. Полевая инъекция и две ошибки **[код проверен, ошибки не воспроизводились]**
+
+В `MainActivity` поля `@Inject lateinit var logger/appSession/activitySession/screenState` не `private`. Если сделать поле `private`, Hilt не может обратиться к нему из сгенерированного кода и сборка падает с сообщением «@Inject fields cannot be private». Если убрать `@AndroidEntryPoint`, Hilt не генерирует `Hilt_MainActivity` и не инжектит поля; обращение к `logger` даёт `UninitializedPropertyAccessException: lateinit property logger has not been initialized`.
+
+Полевая инъекция вынуждена для Activity/Fragment/Receiver: система создаёт их сама, конструктор недоступен. Везде, где объект создаём мы (ViewModel, репозиторий, модуль), предпочтителен `@Inject constructor`: зависимости явные, класс тестируется без Hilt и не требует lateinit.
+
