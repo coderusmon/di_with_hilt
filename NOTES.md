@@ -58,3 +58,23 @@ class AppContainer(context: Context) {
 
 Отдельная ветка `manual-di` с переписыванием Lecture 21 Notes app не создавалась: в репозитории один проект `HiltLab`, и ручное переписывание другого приложения не входило в фактически выполненный объём. Поэтому числа «сколько файлов/строк» для этой миграции не приводятся — их нельзя честно измерить без самой миграции.
 
+### Вопрос 5. Граф зависимостей и боли ручного DI
+
+```
+MainActivity ──> AppSession, ActivitySession, ScreenState, Logger
+NotesRoute ──> NotesViewModel ──> NoteRepository ──> NoteDao ──> AppDatabase ──> Context
+NoteDetailRoute ──> NoteDetailViewModel ──> NoteRepository, SavedStateHandle, DateFormatter
+UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ──> Retrofit ──> OkHttpClient
+                                                  └──> UserDao ──> AppDatabase ──> Context
+```
+
+Три боли из слайда 7, которые видны на графе:
+
+1. **Factory boilerplate.** Каждому ViewModel нужна фабрика с шестью параметрами; при добавлении `DateFormatter` правится каждая фабрика. Hilt убирает это полностью.
+2. **Ручное управление жизнями.** Кто закрывает `AppDatabase`, когда создавать `OkHttpClient`, почему `Context` нельзя хранить дольше Activity. Hilt генерирует компоненты и проверяет это на этапе сборки, то есть **переносит** ответственность на граф, но не отменяет необходимость выбирать scope.
+3. **Порядок инициализации.** `AppContainer` должен быть создан до первого экрана; при тестах его нужно подменять вручную. Hilt убирает ручной порядок, но **оставляет** требование правильно объявить `@InstallIn` и зависимости.
+
+---
+
+## Section 2 — Setting Up Hilt
+
