@@ -234,3 +234,9 @@ class NoteDetailViewModel @Inject constructor(
 
 Маршрут `note/{noteId}` объявлен с `NavType.LongType`, Hilt сам кладёт аргументы в `SavedStateHandle`. На эмуляторе открыл заметку, свернул приложение, выполнил `adb shell am kill uz.ttpu.hiltlab`, снова запустил: процесс новый (`AppSession #1`), а экран «Заметка» восстановился с тем же `noteId` и текстом. JVM-тест `NoteDetailViewModelTest` передаёт `SavedStateHandle(mapOf("noteId" to 1L))` и проверяет загрузку/сохранение.
 
+### Вопрос 23. Реальный и fake репозиторий **[проверено]**
+
+`NoteRepository` — интерфейс; `RoomNoteRepository` работает с Room, `FakeNoteRepository` хранит две заметки в `MutableStateFlow`. `RepositoryModule` выбирает реализацию по `BuildConfig.USE_FAKE_NOTES`, который задаётся Gradle-свойством `-PuseFakeNotes=true`. Провайдеры принимают `Provider<…>`, поэтому в fake-режиме Room вообще не создаётся (в логе нет `created AppDatabase`).
+
+Скриншоты: `screenshots/notes_real.png` (пустой список из Room) и `screenshots/notes_fake.png` (две демо-заметки). Обе получены на эмуляторе.
+
