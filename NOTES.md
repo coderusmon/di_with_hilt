@@ -256,3 +256,7 @@ class NoteDetailViewModel @Inject constructor(
 
 `@TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class])` говорит Hilt: в тестовом графе не использовать `DatabaseModule`, а взять провайдеры из тестового модуля (in-memory Room). `@HiltAndroidTest` включает генерацию тестового компонента для класса; `HiltAndroidRule` создаёт/инжектит этот компонент и вызывает `inject()`; кастомный runner подменяет `Application` на `HiltTestApplication`, иначе Hilt не с чем связать тестовый граф. Юнит-тесту класса с `@Inject constructor` ничего этого не нужно: он создаёт объект обычным `new`/конструктором и передаёт fake-зависимости.
 
+### Вопрос 27. Тесты без Hilt **[проверено]**
+
+25 JVM-тестов в `:data` и `:feature-notes` не используют Hilt, Android и эмулятор: `ManualDiTest`, `FakeNoteRepositoryTest`, `RoomNoteRepositoryTest` (fake DAO + test dispatcher), `UserRepositoryTest` (MockWebServer), `NetworkQualifierTest`, `FileDownloader`-тесты, `NotesViewModelTest`, `NoteDetailViewModelTest`. Все классы тестируемы потому, что зависимости приходят через конструктор, а интерфейсы (`NoteRepository`, `UserRepository`, `NoteDao`) позволяют подставить fake. Время `./gradlew testDebugUnitTest` — около 6–13 секунд на прогретом Gradle.
+
