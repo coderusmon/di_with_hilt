@@ -252,3 +252,7 @@ class NoteDetailViewModel @Inject constructor(
 
 ## Section 6 — Testing & Capstone
 
+### Вопрос 26. Замена модулей и тестовая инфраструктура
+
+`@TestInstallIn(components = [SingletonComponent::class], replaces = [DatabaseModule::class])` говорит Hilt: в тестовом графе не использовать `DatabaseModule`, а взять провайдеры из тестового модуля (in-memory Room). `@HiltAndroidTest` включает генерацию тестового компонента для класса; `HiltAndroidRule` создаёт/инжектит этот компонент и вызывает `inject()`; кастомный runner подменяет `Application` на `HiltTestApplication`, иначе Hilt не с чем связать тестовый граф. Юнит-тесту класса с `@Inject constructor` ничего этого не нужно: он создаёт объект обычным `new`/конструктором и передаёт fake-зависимости.
+
