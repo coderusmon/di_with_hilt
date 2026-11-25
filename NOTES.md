@@ -187,3 +187,7 @@ SingletonComponent (Application)
 * `@ViewModelScoped` нельзя инжектить в Activity напрямую: компонент ViewModel — ребёнок, его scope не виден Activity. **Нелегально.**
 * Поворот переживают `SingletonComponent` и `ActivityRetainedComponent` (и ViewModel); `ActivityComponent` и `FragmentComponent` пересоздаются. Процессную смерть не переживает ничего, кроме сохранённого состояния (`SavedStateHandle`, `SavedStateRegistry`).
 
+### Вопрос 18. Ошибки иерархии **[не воспроизводилось]**
+
+`@Singleton class X(@ActivityScoped y: Y)` даёт ошибку вида «Y is scoped to ActivityComponent but X is scoped to SingletonComponent»: Dagger отказывается строить граф. `@Singleton class X(@ActivityContext context: Context)` даёт ошибку о том, что `@ActivityContext` не может быть предоставлен в SingletonComponent. Обе ошибки предотвращают утечку Activity: singleton хранил бы ссылку на уничтоженную Activity, а значит её View-дерево и контекст.
+
