@@ -240,3 +240,7 @@ class NoteDetailViewModel @Inject constructor(
 
 Скриншоты: `screenshots/notes_real.png` (пустой список из Room) и `screenshots/notes_fake.png` (две демо-заметки). Обе получены на эмуляторе.
 
+### Вопрос 24. `BroadcastReceiver` **[проверено]**
+
+`BootReceiver` аннотирован `@AndroidEntryPoint`, поле `@Inject lateinit var logger: Logger`. После установки/запуска в логе появилось `BootReceiver received: android.intent.action.BOOT_COMPLETED`, то есть инъекция сработала. В Kotlin вызов `super.onReceive(context, intent)` невозможен: `BroadcastReceiver.onReceive` абстрактный, компилятор выдаёт «Abstract member cannot be accessed directly». Hilt генерирует `Hilt_BootReceiver`, который сначала инжектит поля, затем вызывает `BootReceiver.onReceive`; поэтому инъекция происходит до пользовательского кода, а ручной `super` не нужен. Это расходится с формулировкой задания, но соответствует фактическому поведению Hilt/Kotlin.
+
