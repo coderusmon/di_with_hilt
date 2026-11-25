@@ -264,3 +264,7 @@ class NoteDetailViewModel @Inject constructor(
 
 В `:app`: `testInstrumentationRunner = "uz.ttpu.hiltlab.HiltTestRunner"`, `androidTestImplementation(libs.hilt.android.testing)`, `kspAndroidTest(libs.hilt.android.compiler)`. `HiltTestRunner` возвращает `HiltTestApplication`. Тесты `NoteRepositoryHiltTest` и `ScopeTest` используют `@HiltAndroidTest` и `HiltAndroidRule`. Все 4 instrumented-теста прошли на эмуляторе. Три намеренные поломки (без runner, без rule, без `inject()`) не воспроизводились; типичные симптомы — `HiltTestApplication` не установлен, `lateinit` не инициализирован, пустой тестовый компонент.
 
+### Вопрос 29. In-memory база и Compose-тест **[проверено]**
+
+`TestDatabaseModule` заменяет `DatabaseModule` и отдаёт `Room.inMemoryDatabaseBuilder(...).allowMainThreadQueries().build()`. `NotesScreenTest` через `createComposeRule()` рисует `NotesScreen` с заметкой и проверяет `onNodeWithText("Заметка A")` и клик. `NoteRepositoryHiltTest` пишет заметку в in-memory Room и читает её. Повторный запуск instrumented-тестов начинается с пустой базы, потому что in-memory база создаётся заново в каждом процессе.
+
