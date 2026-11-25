@@ -113,3 +113,13 @@ UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ─�
 
 ## Section 3 — Modules, Bindings & Qualifiers
 
+### Вопрос 11. `@Binds` для `Logger` **[проверено сборкой]**
+
+`interface Logger`; `LogcatLogger` и `FileLogger` имеют `@Inject constructor()`. В `BindingsModule`:
+
+```kotlin
+@Binds abstract fun bindLogger(impl: LogcatLogger): Logger
+```
+
+Замена `LogcatLogger` на `FileLogger` в этой строке — единственное изменение, все потребители (`MainActivity`, `BootReceiver`, ViewModel) продолжают получать `Logger`. В проекте используется `LogcatLogger`; `FileLogger` оставлен как вторая реализация для демонстрации.
+
