@@ -197,3 +197,19 @@ SingletonComponent (Application)
 
 Если убрать `project(":data")` из `:app`, сборка падает на импортах `uz.ttpu.hiltlab.data.*` в `App`, `MainActivity`, `UsersViewModel`, `HomeScreen` (unresolved reference). Кроме того, `:app` перестаёт видеть Hilt-модули `:data` при агрегации, поэтому даже после ручного добавления отдельных классов граф останется без `NoteRepository`/`UserRepository`.
 
+### Вопрос 20. Выбор scope
+
+| Класс | Scope | Почему |
+|---|---|---|
+| `UserSession` | `@Singleton` | одна сессия на запуск приложения, общая для экранов |
+| `NoteListState` | без scope (или `@ViewModelScoped` внутри VM) | состояние одного экрана; глобальный singleton хранил бы мусор |
+| `HttpClient` | `@Singleton` | дорогой (пул соединений, потоки), потокобезопасен |
+| `DateFormatter` | без scope | дешёвый и stateless; создание на вызов не проблема |
+| `AuthToken` | `@Singleton` | меняется при логине, но должна быть общей; изменяемость требует volatile/синхронизации |
+
+`@Singleton` был бы ошибкой для состояния экрана (утечка UI-данных между экранами), для объекта с Activity-контекстом и для дешёвого stateless-хелпера, где scope добавляет только церемонию. «Просто сделать singleton» — не решение, а компромисс между стоимостью создания, временем жизни и потокобезопасностью.
+
+---
+
+## Section 5 — Hilt in Android
+
