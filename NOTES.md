@@ -123,3 +123,15 @@ UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ─�
 
 Замена `LogcatLogger` на `FileLogger` в этой строке — единственное изменение, все потребители (`MainActivity`, `BootReceiver`, ViewModel) продолжают получать `Logger`. В проекте используется `LogcatLogger`; `FileLogger` оставлен как вторая реализация для демонстрации.
 
+### Вопрос 12. `@Provides` для сети и ленивость **[проверено]**
+
+`NetworkModule` содержит `@Provides @Singleton` для `OkHttpClient` (API), второго `OkHttpClient` (download), `Retrofit`, `GitHubApi` и `@BaseUrl`. В каждом провайдере стоит `println("created …")`. Реальный лог при первом открытии GitHub users:
+
+```
+created ApiClient
+created Retrofit
+created GitHubApi
+```
+
+При повторном переходе на экран новых строк нет — singleton-объекты переиспользуются. `DownloadClient` не создаётся, пока никто не запросил `FileDownloader`; это подтверждает ленивую инициализацию Hilt.
+
