@@ -89,3 +89,9 @@ UsersRoute ──> UsersViewModel ──> UserRepository ──> GitHubApi ─�
 
 Точный текст ошибок в `NOTES.md` не скопирован: намеренно ломать рабочий проект в этом прогоне не стал, чтобы не оставить репозиторий в нерабочем состоянии (это ограничение указано в начале).
 
+### Вопрос 7. `@HiltAndroidApp` и `Hilt_App` **[проверено]**
+
+`App : Application` аннотирован `@HiltAndroidApp`, в манифесте указано `android:name=".App"`. Hilt сгенерировал `app/build/generated/hilt/component_sources/debug/uz/ttpu/hiltlab/Hilt_App.java` (54 строки): абстрактный класс наследует `Application`, реализует `GeneratedComponentManagerHolder`, лениво строит `DaggerApp_HiltComponents_SingletonC`, а в `onCreate()` вызывает `hiltInternalInject()` и только затем `super.onCreate()`. Плагин подменяет базовый класс `App` на `Hilt_App`.
+
+Без строки в манифесте система создаёт обычный `Application`, и `@AndroidEntryPoint`-активность падает с `IllegalStateException`: Hilt Activity должен быть прикреплён к `@HiltAndroidApp`-приложению. Без аннотации Hilt не генерирует `Hilt_App`, поэтому сборка не находит сгенерированный базовый класс. **[не воспроизводилось]**
+
