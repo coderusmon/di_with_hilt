@@ -150,3 +150,11 @@ fun provideDatabase(@ApplicationContext context: Context): AppDatabase
 
 Два преимущества собственных квалификаторов перед `@Named("api")`: компилятор проверяет тип аннотации и не допускает опечатку в строке; аннотация документирует назначение и её можно переиспользовать в тестах, не копируя строковые литералы.
 
+### Вопрос 15. `@BaseUrl` и `@IoDispatcher` **[проверено]**
+
+`DispatcherModule` даёт `@IoDispatcher CoroutineDispatcher = Dispatchers.IO`; `NetworkModule` принимает `@BaseUrl String`. `RoomNoteRepository` и `DefaultUserRepository` вызывают `withContext(io)`. В `RoomNoteRepositoryTest` репозиторий создан с `UnconfinedTestDispatcher()` и fake `NoteDao`; тест не использует ни одного Android-класса. Аналогично `UserRepositoryTest` подставляет тестовый диспетчер и `MockWebServer`.
+
+---
+
+## Section 4 — Components & Scopes
+
