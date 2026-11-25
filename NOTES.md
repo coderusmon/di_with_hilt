@@ -268,3 +268,6 @@ class NoteDetailViewModel @Inject constructor(
 
 `TestDatabaseModule` заменяет `DatabaseModule` и отдаёт `Room.inMemoryDatabaseBuilder(...).allowMainThreadQueries().build()`. `NotesScreenTest` через `createComposeRule()` рисует `NotesScreen` с заметкой и проверяет `onNodeWithText("Заметка A")` и клик. `NoteRepositoryHiltTest` пишет заметку в in-memory Room и читает её. Повторный запуск instrumented-тестов начинается с пустой базы, потому что in-memory база создаётся заново в каждом процессе.
 
+### Вопрос 30. Capstone
+
+Приложение содержит GitHub users (Retrofit + Room cache) и Notes (Room/fake, `SavedStateHandle`), Hilt-модули сети, базы, диспетчеров и репозиториев, квалификаторы `@ApiClient`, `@DownloadClient`, `@BaseUrl`, `@IoDispatcher`, `@HiltViewModel` с `SavedStateHandle`, замену `DatabaseModule` в instrumented-тестах и `MockWebServer` в JVM-тестах. 25 JVM-тестов + 4 instrumented; README содержит диаграмму компонентов и зависимостей. Ограничения: ветки `manual-di`/`hilt` и nested edit graph не создавались, поэтому соответствующие пункты отмечены выше как невыполненные.
