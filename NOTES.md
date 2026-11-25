@@ -25,3 +25,14 @@
 
 В `data/src/test/.../ManualDiTest.kt` три теста: `hardCarBuildsItsOwnEngine`, `softCarAcceptsAnyEngine` (анонимный `FakeEngine`), `serviceLocatorHidesTheDependency`.
 
+### Вопрос 2. Construct / grab / supplied
+
+| Фрагмент | Способ | Обоснование |
+|---|---|---|
+| (a) `Room.databaseBuilder(...).build()` внутри класса | **construct** | класс сам создаёт базу, зависимость зашита в него |
+| (b) `ApiInstance.service` внутри класса | **grab** | класс тянет готовый объект из глобального локатора |
+| (c) `class Repo(private val api: Api)` | **supplied** | зависимость приходит извне через конструктор |
+| (d) `LocalContext.current` в composable | **grab** | значение берётся из `CompositionLocal`, а не передаётся параметром |
+| (e) `by viewModels()` с кастомной фабрикой | **supplied** | фабрика создаёт ViewModel и передаёт зависимости |
+| (f) `@Inject lateinit var logger: Logger` | **supplied** | Hilt подставляет поле после создания Android-объекта |
+
