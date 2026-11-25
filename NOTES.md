@@ -135,3 +135,12 @@ created GitHubApi
 
 При повторном переходе на экран новых строк нет — singleton-объекты переиспользуются. `DownloadClient` не создаётся, пока никто не запросил `FileDownloader`; это подтверждает ленивую инициализацию Hilt.
 
+### Вопрос 13. `@ApplicationContext` **[не воспроизводилось]**
+
+```kotlin
+@Provides @Singleton
+fun provideDatabase(@ApplicationContext context: Context): AppDatabase
+```
+
+Без квалификатора Dagger не знает, какой именно `Context` подставить: в графе есть и `Application`, и `Activity`. `@ApplicationContext` — встроенный квалификатор Hilt, который говорит «это контекст приложения, живёт весь процесс». Обычный `Context` неоднозначен ещё и по времени жизни: если в singleton попадёт Activity, она утечёт.
+
