@@ -144,3 +144,9 @@ fun provideDatabase(@ApplicationContext context: Context): AppDatabase
 
 Без квалификатора Dagger не знает, какой именно `Context` подставить: в графе есть и `Application`, и `Activity`. `@ApplicationContext` — встроенный квалификатор Hilt, который говорит «это контекст приложения, живёт весь процесс». Обычный `Context` неоднозначен ещё и по времени жизни: если в singleton попадёт Activity, она утечёт.
 
+### Вопрос 14. Два `OkHttpClient` и квалификаторы **[код проверен]**
+
+В `Qualifiers.kt` объявлены `@ApiClient`, `@DownloadClient`, `@BaseUrl`, `@IoDispatcher`. `NetworkModule` предоставляет клиенты с read-timeout 10 с и 60 с; `FileDownloader` принимает `@DownloadClient`, а Retrofit — `@ApiClient`. Если убрать квалификатор у одного места инъекции, Dagger видит два одинаковых `OkHttpClient` без квалификатора и падает с `DuplicateBindings`/`missing binding` — тип перестаёт быть однозначным ключом. **[точный текст не копировался]**
+
+Два преимущества собственных квалификаторов перед `@Named("api")`: компилятор проверяет тип аннотации и не допускает опечатку в строке; аннотация документирует назначение и её можно переиспользовать в тестах, не копируя строковые литералы.
+
