@@ -191,3 +191,9 @@ SingletonComponent (Application)
 
 `@Singleton class X(@ActivityScoped y: Y)` даёт ошибку вида «Y is scoped to ActivityComponent but X is scoped to SingletonComponent»: Dagger отказывается строить граф. `@Singleton class X(@ActivityContext context: Context)` даёт ошибку о том, что `@ActivityContext` не может быть предоставлен в SingletonComponent. Обе ошибки предотвращают утечку Activity: singleton хранил бы ссылку на уничтоженную Activity, а значит её View-дерево и контекст.
 
+### Вопрос 19. Модули `:app`, `:feature-notes`, `:data` **[проверено сборкой]**
+
+`:data` содержит модели, Room, Retrofit, репозитории и все Hilt-модули (`NetworkModule`, `DatabaseModule`, `DispatcherModule`, `BindingsModule`, `RepositoryModule`); `:feature-notes` — экраны и `@HiltViewModel`; `:app` — `@HiltAndroidApp`, `MainActivity`, навигация. Зависимости: `:app → :feature-notes → :data`, `:app → :data`.
+
+Если убрать `project(":data")` из `:app`, сборка падает на импортах `uz.ttpu.hiltlab.data.*` в `App`, `MainActivity`, `UsersViewModel`, `HomeScreen` (unresolved reference). Кроме того, `:app` перестаёт видеть Hilt-модули `:data` при агрегации, поэтому даже после ручного добавления отдельных классов граф останется без `NoteRepository`/`UserRepository`.
+
